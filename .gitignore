@@ -1,0 +1,6 @@
+/target
+pseudo
+out
+Cargo.lock
+downloader
+filter.txt
