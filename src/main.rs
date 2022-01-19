@@ -47,7 +47,7 @@ fn main() {
 
     for manifest in &depot.manifests {
         for file in &filter {
-            let mut out = Command::new("/Users/raizo/.dotnet/tools/ilspycmd")
+            let mut out = Command::new("ilspycmd")
                 .args([
                     "-p",
                     "-o",
