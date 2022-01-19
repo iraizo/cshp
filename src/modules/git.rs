@@ -4,15 +4,18 @@ use std::{
     path::Path,
     process::{Command, Stdio},
 };
+
+use fs_extra::dir::CopyOptions;
 #[derive(Clone)]
 pub struct Git {
     pub dir: String,
+    pub pseudo_dir: String,
     pub manifest_name: String,
 }
 
 impl Git {
-    pub fn new(dir: String, manifest_name: String) -> Self {
-        return Self { dir, manifest_name };
+    pub fn new(dir: String, pseudo_dir: String, manifest_name: String) -> Self {
+        return Self { dir, manifest_name, pseudo_dir };
     }
 
     pub fn update(&mut self) {
@@ -41,23 +44,15 @@ impl Git {
 
         out.wait().unwrap();
 
-        copy(
-            &String::from("pseudo/".to_owned() + &self.to_owned().manifest_name),
-            &self.dir.clone(),
+        let mut opt = CopyOptions::new();
+        opt.overwrite = true;
+        opt.content_only = true;
+
+        fs_extra::dir::copy(
+            &String::from(self.pseudo_dir.clone() + "/" + &self.to_owned().manifest_name),
+            &self.dir.clone(), &opt
         )
         .unwrap();
-
-        /*    let dir = read_dir(&String::from(
-            "pseudo/".to_owned() + &self.to_owned().manifest_name,
-        ))
-        .unwrap();
-        for file in dir {
-            copy(
-                file.as_ref().unwrap().path(),
-                String::from(self.dir.clone() + "/" + file.unwrap().file_name().to_str().unwrap()),
-            )
-            .unwrap();
-        }*/
 
         let mut out = Command::new("git")
             .current_dir(self.dir.clone())
@@ -72,8 +67,9 @@ impl Git {
     pub fn commit(&mut self) {
         let mut out = Command::new("git")
             .current_dir(self.dir.clone())
-            .stdin(Stdio::null())
-            .args(["commit", "-m", "Update"])
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .args(["commit", "-m", &("Updated ".to_owned() + &self.manifest_name)])
             .spawn()
             .expect("Failed");
 

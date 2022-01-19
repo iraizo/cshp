@@ -1,12 +1,12 @@
 use std::{
     fs::File,
     io::{BufRead, BufReader},
-    process::Command,
+    process::Command, ptr::read,
 };
 
 use modules::steamcmd::Steamcmd;
 
-use crate::modules::{git::Git, types::Manifest};
+use crate::modules::{git::Git, types::{Manifest, Configuration}};
 
 pub mod modules {
     pub mod git;
@@ -15,7 +15,12 @@ pub mod modules {
 }
 
 fn main() {
-    let cmd = Steamcmd::new(258550, 258551, "out/".to_string());
+    let file = File::open("config.json").unwrap();
+    
+    let reader = BufReader::new(file);
+    let config: Configuration = serde_json::from_reader(reader).unwrap();
+
+    let cmd = Steamcmd::new(config.id, config.depot, config.download_out.clone() + "/");
     println!("[*] Fetching depot..");
     let mut depot = cmd.fetch_depot().clone();
 
@@ -34,21 +39,20 @@ fn main() {
     println!("[+] Done downloading all manifests");
     println!("[*] Decompiling Assemblies..");
 
-    let file = File::open("filter.txt").unwrap();
+    let file = File::open(config.filter).unwrap();
     let filter: Vec<String> = BufReader::new(file)
         .lines()
         .collect::<Result<_, _>>()
         .unwrap();
 
     for manifest in &depot.manifests {
-        std::fs::create_dir_all(&String::from("pseudo/".to_owned() + &manifest.name)).unwrap();
         for file in &filter {
             let mut out = Command::new("/Users/raizo/.dotnet/tools/ilspycmd")
                 .args([
                     "-p",
                     "-o",
-                    &String::from("pseudo/".to_owned() + &manifest.name),
-                    &String::from("out/".to_owned() + &manifest.name + "/" + file),
+                    &String::from(config.pseudo_out.clone() + "/" + &manifest.name),
+                    &String::from(config.download_out.clone() + "/" + &manifest.name + "/" + file),
                 ])
                 .spawn()
                 .expect("Failed");
@@ -59,26 +63,23 @@ fn main() {
     }
 
     for manifest in &depot.manifests {
-        let mut repo = Git::new("repo".to_string(), manifest.name.clone());
+        let mut repo = Git::new(config.repo.clone(), config.pseudo_out.clone(), manifest.name.clone());
         repo.update();
         println!("[*] Updated branch of {:?}", manifest.name);
     }
 
-    /* TODO: dont hardcode this */
-    let main_repo = "public";
-
-    let mut repo = Git::new("repo".to_string(), main_repo.to_string());
+    let mut repo = Git::new(config.repo.clone(),config.pseudo_out.clone(),config.main_manifest.clone());
     repo.push();
 
     let index = depot
         .manifests
         .iter()
-        .position(|x| x.name == main_repo)
+        .position(|x| x.name == config.main_manifest.clone())
         .unwrap();
     depot.manifests.remove(index);
 
     for manifest in &depot.manifests {
-        let mut repo = Git::new("repo".to_string(), manifest.name.clone());
+        let mut repo = Git::new(config.repo.clone(), config.pseudo_out.clone(), manifest.name.clone());
         repo.push();
         println!("[*] Pushed branch of {:?}", manifest.name);
     }
