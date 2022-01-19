@@ -4,3 +4,5 @@ out
 Cargo.lock
 downloader
 filter.txt
+config.json
+.DS_Store
