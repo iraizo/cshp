@@ -14,12 +14,12 @@ listing the features below.
 - [x] Only download certain assemblies based on user configuration.
 - [x] Dissasemble assemblies
   - [x] Dissasemble assemblies without hardcoding the names.
-- [ ] Safety of the code.
+- [x] Safety of the code (anything that panics isn't a recoverable error).
 - [ ] Support for multiple branches.
-- [ ] Support for uploading pseudo using git.
-  - [ ] Create different branches for different manifests.
+- [x] Support for uploading pseudo using git.
+  - [x] Create different branches for different manifests.
   - [ ] Multithreaded downloading/dissasembly.
-- [ ] Remove hardcoded values.
+- [x] Remove hardcoded values.
 
 ### Support
 This project supports x86_64/arm64 CPU's.  
