@@ -1,0 +1,9 @@
+{
+    "repo": "repo",
+    "id": 258550,
+    "depot": 258551,
+    "pseudo_out": "pseudo",
+    "download_out": "out",
+    "filter": "filter.txt",
+    "main_manifest": "public"
+}

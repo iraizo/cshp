@@ -11,12 +11,13 @@ pub struct Manifest {
     pub id: String
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Api {
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Data {
-    
+pub struct Configuration {
+    pub repo: String,
+    pub depot: u32,
+    pub id: u32,
+    pub pseudo_out: String,
+    pub download_out: String,
+    pub filter: String,
+    pub main_manifest: String
 }
