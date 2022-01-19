@@ -16,7 +16,15 @@ impl Steamcmd {
     }
 
     pub fn fetch_depot(&self) -> Depot {
-        let resp: Value = reqwest::blocking::get("https://api.steamcmd.net/v1/info/".to_owned() + &self.id.to_string()).unwrap().json().unwrap();
+        let resp: Value = match reqwest::blocking::get("https://api.steamcmd.net/v1/info/".to_owned() + &self.id.to_string()) {
+            Ok(response) => {
+                if response.status() != 200 {
+                    panic!("Error trying to get depots, api returned status {:?}", response.status());
+                }
+                response.json().unwrap()
+            },
+            Err(err) => panic!("Error trying to send request {:?}", &err),
+        };
 
         if resp["status"] != "success" {
             println!("{:?}", resp);
@@ -41,8 +49,8 @@ impl Steamcmd {
 
     /* some values are hardcoded since this is initally made for rust reversing */ 
     pub fn download_manifest(&self, manifest: &Manifest) {
-        let out = Command::new("dotnet")
-            .args(["downloader/DepotDownloader.dll",
+        let mut out = Command::new("dotnet")
+            .args(["downloader/DepotDownloader.dll", 
             "-app", &self.id.to_string(),
             "-filelist", "filter.txt",
             "-depot", &self.depot.to_string(),
@@ -50,8 +58,10 @@ impl Steamcmd {
             "-os", "windows",
             "-dir", &String::from(self.dir.clone() + &manifest.name)
             ])
-            .output()
+            .spawn()
             .expect("Failed");
+        
+        out.wait().unwrap();
     }
 
 }

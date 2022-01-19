@@ -1,12 +1,12 @@
 use std::{
     fs::File,
     io::{BufRead, BufReader},
-    process::Command, ptr::read,
+    process::Command,
 };
 
 use modules::steamcmd::Steamcmd;
 
-use crate::modules::{git::Git, types::{Manifest, Configuration}};
+use crate::modules::{git::Git, types::{Configuration}};
 
 pub mod modules {
     pub mod git;

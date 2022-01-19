@@ -22,6 +22,7 @@ listing the features below.
 - [x] Remove hardcoded values.
 
 ### Support
+
 This project supports x86_64/arm64 CPU's.  
 The Operation systems/Kernels supported are: Linux, Windows,macOS.
 
