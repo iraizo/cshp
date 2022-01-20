@@ -50,8 +50,10 @@ impl Steamcmd {
             "-os", "windows",
             "-dir", &String::from(self.dir.clone() + &manifest.name)
             ])
-            .output()
+            .spawn()
             .expect("Failed");
+        
+        out.wait().unwrap();
     }
 
 }
