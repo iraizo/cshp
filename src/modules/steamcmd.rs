@@ -41,7 +41,7 @@ impl Steamcmd {
 
     /* some values are hardcoded since this is initally made for rust reversing */ 
     pub fn download_manifest(&self, manifest: &Manifest) {
-        let out = Command::new("dotnet")
+        let mut out = Command::new("dotnet")
             .args(["downloader/DepotDownloader.dll",
             "-app", &self.id.to_string(),
             "-filelist", "filter.txt",
