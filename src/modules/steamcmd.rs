@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use serde_json::Value;
 
@@ -53,11 +53,12 @@ impl Steamcmd {
             .args(["downloader/DepotDownloader.dll", 
             "-app", &self.id.to_string(),
             "-filelist", "filter.txt",
-            "-depot", &self.depot.to_string(),
+            "-depot", &self.depot.to_string (),
             "-manifest", &manifest.id,
             "-os", "windows",
             "-dir", &String::from(self.dir.clone() + &manifest.name)
             ])
+            .stdout(Stdio::null())
             .spawn()
             .expect("Failed");
         
