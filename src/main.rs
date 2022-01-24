@@ -1,3 +1,4 @@
+use core::panic;
 use std::{
     fs::File,
     io::{BufRead, BufReader},
@@ -47,15 +48,17 @@ fn main() {
 
     for manifest in &depot.manifests {
         for file in &filter {
-            let mut out = Command::new("ilspycmd")
+            let mut out = match Command::new("ilspycmd")
                 .args([
                     "-p",
                     "-o",
                     &String::from(config.pseudo_out.clone() + "/" + &manifest.name),
                     &String::from(config.download_out.clone() + "/" + &manifest.name + "/" + file),
                 ])
-                .spawn()
-                .expect("Failed");
+                .spawn() {
+                    Ok(child) => child,
+                    Err(err) => panic!("Error running ilspycmd: {:?}", err),
+                };
 
             out.wait().unwrap();
             println!("[*] Decompilation done of manifest {}", manifest.name);
@@ -63,12 +66,12 @@ fn main() {
     }
 
     for manifest in &depot.manifests {
-        let mut repo = Git::new(config.repo.clone(), config.pseudo_out.clone(), manifest.name.clone());
+        let mut repo = Git::new(config.repo.clone(), config.pseudo_out.clone(), manifest.name.clone(), config.main_manifest.clone());
         repo.update();
         println!("[*] Updated branch of {:?}", manifest.name);
-    }
+}
 
-    let mut repo = Git::new(config.repo.clone(),config.pseudo_out.clone(),config.main_manifest.clone());
+    let mut repo = Git::new(config.repo.clone(),config.pseudo_out.clone(),config.main_manifest.clone(), config.main_manifest.clone());
     repo.push();
 
     let index = depot
@@ -79,7 +82,7 @@ fn main() {
     depot.manifests.remove(index);
 
     for manifest in &depot.manifests {
-        let mut repo = Git::new(config.repo.clone(), config.pseudo_out.clone(), manifest.name.clone());
+        let mut repo = Git::new(config.repo.clone(), config.pseudo_out.clone(), manifest.name.clone(), config.main_manifest.clone());
         repo.push();
         println!("[*] Pushed branch of {:?}", manifest.name);
     }
