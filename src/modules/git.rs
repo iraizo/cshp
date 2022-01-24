@@ -15,6 +15,7 @@ pub struct Git {
 
 impl Git {
     pub fn new(dir: String, pseudo_dir: String, manifest_name: String) -> Self {
+        println!("{:?}", &dir);
         return Self { dir, manifest_name, pseudo_dir };
     }
 
@@ -26,7 +27,7 @@ impl Git {
     pub fn push(&mut self) {
         let mut out = Command::new("git")
            // .current_dir(self.dir.clone())
-            .args(["--git-dir=.git", "push", "origin", &self.manifest_name])
+            .args([/*"--git-dir=.git",*/ "push", "origin", &self.manifest_name])
             .stdin(Stdio::null())
             .spawn()
             .expect("Failed");
@@ -37,7 +38,7 @@ impl Git {
     pub fn add(&mut self) {
         let mut out = Command::new("git")
             .current_dir(self.dir.clone())
-            .args(["--git-dir=.git", "checkout", "-f", &self.manifest_name])
+            .args([/*"--git-dir=.git",*/ "checkout", "-f", &self.manifest_name])
             .stdin(Stdio::null())
             .spawn()
             .expect("Failed");
@@ -57,7 +58,7 @@ impl Git {
         let mut out = Command::new("git")
         //    .current_dir(self.dir.clone())
             .stdin(Stdio::null())
-            .args(["--git-dir=.git", "add", "."])
+            .args([/*"--git-dir=.git",*/ "add", "."])
             .spawn()
             .expect("Failed");
 
@@ -69,7 +70,7 @@ impl Git {
           //  .current_dir(self.dir.clone())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
-            .args(["--git-dir=.git", "commit", "-m", &("Updated ".to_owned() + &self.manifest_name)])
+            .args([/*"--git-dir=.git",*/ "commit", "-m", &("Updated ".to_owned() + &self.manifest_name)])
             .spawn()
             .expect("Failed");
 
