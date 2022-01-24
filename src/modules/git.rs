@@ -6,14 +6,16 @@ pub struct Git {
     pub dir: String,
     pub pseudo_dir: String,
     pub manifest_name: String,
+    pub main_manifest_name: String
 }
 
 impl Git {
-    pub fn new(dir: String, pseudo_dir: String, manifest_name: String) -> Self {
-        return Self { dir, manifest_name, pseudo_dir };
+    pub fn new(dir: String, pseudo_dir: String, manifest_name: String, main_manifest_name: String) -> Self {
+        return Self { dir, manifest_name, pseudo_dir, main_manifest_name };
     }
 
     pub fn update(&mut self) {
+        self.rebase();
         self.add();
         self.commit();
     }
@@ -21,7 +23,7 @@ impl Git {
     pub fn push(&mut self) {
         let mut out = Command::new("git")
             .current_dir(self.dir.clone())
-            .args(["push", "origin", &self.manifest_name])
+            .args(["push", "-f", "origin", &self.manifest_name, "-v"])
             .stdin(Stdio::null())
             .spawn()
             .expect("Failed");
@@ -29,11 +31,22 @@ impl Git {
         out.wait().unwrap();
     }
 
+    pub fn rebase(&mut self) {
+        let mut out = Command::new("git")
+        .current_dir(self.dir.clone())
+        .args(["rebase", &self.main_manifest_name])
+    //    .stdout(Stdio::null())
+        .spawn()
+        .expect("Failed");
+
+        out.wait().unwrap();
+    }
+
     pub fn add(&mut self) {
         let mut out = Command::new("git")
             .current_dir(self.dir.clone())
-            .args(["checkout", "-f", &self.manifest_name])
-            .stdin(Stdio::null())
+            .args(["checkout", &self.manifest_name])
+            .stdout(Stdio::null())
             .spawn()
             .expect("Failed");
 
@@ -51,7 +64,7 @@ impl Git {
 
         let mut out = Command::new("git")
             .current_dir(self.dir.clone())
-            .stdin(Stdio::null())
+         //   .stdin(Stdio::null())
             .args(["add", "."])
             .spawn()
             .expect("Failed");
@@ -62,8 +75,8 @@ impl Git {
     pub fn commit(&mut self) {
         let mut out = Command::new("git")
             .current_dir(self.dir.clone())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
+           // .stdout(Stdio::piped())
+           // .stderr(Stdio::piped())
             .args(["commit", "-m", &("Updated ".to_owned() + &self.manifest_name)])
             .spawn()
             .expect("Failed");
