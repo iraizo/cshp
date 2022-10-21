@@ -7,7 +7,7 @@ This is a cross-platform tool to historicize different branches/depots/manifests
 ## Roadmap
 
 This project is WIP but will get updates frequently  
-listing the features below.
+listing the features/wip below.
 
 - [x] Fetching depots from a steamDB API.
 - [x] Download all the manifests of the depo.
@@ -20,6 +20,9 @@ listing the features below.
   - [x] Create different branches for different manifests.
   - [ ] Multithreaded downloading/dissasembly.
 - [x] Remove hardcoded values.
+- [ ] Using an actual git lib instead of `std::Command`.
+- [ ] Docker deployment.
+- [ ] Check if theres an actual update to the manifests before downloading.
 
 ### Support
 This project supports x86_64/arm64 CPU's.  
